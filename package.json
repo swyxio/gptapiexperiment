@@ -1,0 +1,18 @@
+{
+  "name": "testnodefunctions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "openai": "^3.3.0",
+    "smolai": "^0.0.5",
+    "zod": "^3.21.4",
+    "zod-to-json-schema": "^3.21.1"
+  }
+}
