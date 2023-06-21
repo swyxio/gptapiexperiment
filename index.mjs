@@ -4,7 +4,7 @@ import fs from 'fs'
 
 try {
   const openai = new OpenAIApi({
-    apiKey: "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"
+    apiKey: null
   });
 
   const chatCompletion = await openai.createChatCompletion({
