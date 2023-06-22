@@ -1,5 +1,5 @@
-const zod = require('zod');
-const { addFunction } = require('./foo');
+import zod from 'zod'
+import { addFunction, extraChat } from './prototypeFunctionChat.mjs'
 
 
 const RecipeSchema = zod.object({
@@ -20,14 +20,19 @@ const RecipeSchema = zod.object({
 * */ 
 function set_recipe(inputs) {
   console.log('========recipe========');
-  console.log(recipe);
+  console.log(inputs);
   console.log('========recipe========');
+  return inputs
 }
-
 
 (async function xx() {
 
   addFunction(set_recipe, RecipeSchema);
+
+  extraChat([
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user", "content": "Provide a recipe for spaghetti bolognese"}
+  ])
 
 })()
 

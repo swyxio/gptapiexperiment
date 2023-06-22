@@ -4,12 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsv": "log2tsv"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@smol-ai/logger": "^0.0.15",
     "openai": "^3.3.0",
     "smolai": "^0.0.5",
     "zod": "^3.21.4",
