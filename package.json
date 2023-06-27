@@ -11,9 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@smol-ai/logger": "^0.0.15",
+    "@smol-ai/logger": "^0.0.18",
     "openai": "^3.3.0",
-    "smolai": "^0.0.5",
+    "smolai": "^0.0.7",
     "zod": "^3.21.4",
     "zod-to-json-schema": "^3.21.1"
   }

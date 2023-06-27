@@ -26,8 +26,10 @@ function set_recipe(inputs) {
 }
 
 (async function xx() {
+  console.log('ReceipSchema', RecipeSchema)
 
   addFunction(set_recipe, RecipeSchema);
+  console.log('ReceipSchema', RecipeSchema)
 
   extraChat([
     {"role": "system", "content": "You are a helpful assistant."},
