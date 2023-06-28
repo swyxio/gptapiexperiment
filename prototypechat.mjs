@@ -1,5 +1,10 @@
 import zod from 'zod'
 import { addFunction, extraChat } from './prototypeFunctionChat.mjs'
+// import {
+//   Configuration,
+//   OpenAIApi,
+//   SmolAI
+// } from 'smolai';
 
 
 const RecipeSchema = zod.object({
@@ -24,6 +29,11 @@ function set_recipe(inputs) {
   console.log('========recipe========');
   return inputs
 }
+
+let counter = 0;
+console.log('RecipeSchema ' + counter++, RecipeSchema);
+
+
 
 (async function xx() {
   console.log('ReceipSchema', RecipeSchema)
