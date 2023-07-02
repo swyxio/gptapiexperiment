@@ -25,7 +25,7 @@ const print = ({ title, tags }) => title + tags // dont really care about the im
 smolai.addFunction(print, printSchema); // schema is validated coming in and going out
 smolai.model = 'gpt-4-0613'
 
-const stories = await get_top_stories(1)
+const stories = await get_top_stories(3)
 const tags = await Promise.all(stories.map((story) => generateTitle(story)))
 logger.log('finalResult', stories.map(story => ({...story, ...tags[stories.indexOf(story)]})));
 
