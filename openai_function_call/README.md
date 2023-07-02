@@ -2,7 +2,6 @@
 
 this is a stub for a smol developer package. dont use for now.
 
-
 ## publishing
 
 ```bash
