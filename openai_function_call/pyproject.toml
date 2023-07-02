@@ -1,11 +1,10 @@
 [tool.poetry]
-name = "smol-dev"
+name = "smol"
 version = "0.01"
 description = "python module of smol developer"
 authors = ["swyx <swyx@dontemail.me>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
