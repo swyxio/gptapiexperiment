@@ -1,12 +1,14 @@
 import openai
 from typing import List
 from openai_function_call import openai_function
+import re
 
 # openaimodel = "gpt-3.5-turbo-0613"
 openaimodel = "gpt-4-0613"
 
 smol_dev_system_prompt = """
-You are an AI developer who is trying to write a program that will generate code for the user based on their intent.
+You are a top tier AI developer who is trying to write a program that will generate code for the user based on their intent.
+Do not leave any todos, fully implement every feature requested.
 """
 
 
@@ -50,13 +52,6 @@ def specify_filePaths(prompt: str, sharedDependencyManifest: str):
   return result
   
 
-# @openai_function
-# def sharedDeps(sharedDependencyManifest: str) -> str:
-#     """A markdown file that lists all the dependencies."""
-#     print('sharedDependencyManifest', sharedDependencyManifest)
-#     return sharedDependencyManifest
-
-
 def passthrough(prompt: str):
   print('passthrough', prompt)
   return prompt
@@ -91,11 +86,42 @@ def plan(prompt: str):
   return completion.choices[0].message.content
 
 
+#####
+# TODO: explore pydantic models for export to morph/rift
+#####
+# from pydantic import BaseModel, Field # probably doesn't compile
+
+# class CodeFile(BaseModel):
+#     file_name: str = Field("Name of the file")
+#     file_contents: str = Field("Contents of the file. Must compile correctly")
+    
+# class SmolDeveloperManifest(BaseModel):
+#     md_contents = Field("flat md file which specifies the directory tree of the app we are generating")
+
+# # we want to compute this result incrementally through a chain of thought, i.e.
+# # first, synthesize the manifest
+# # then synthesize partial codefiles with filenames and filepaths
+# # then for all codefiles synthesize content
+# class SmolDeveloperResult(BaseModel):
+#     manifest: SmolDeveloperManifest
+#     code_files: List[CodeFile]
+
+# # commented out because of https://github.com/jxnl/openai_function_call/issues/32
+# @openai_function
+# def validCodeFile(codeFile: str) -> str:
+#     """Receives a string of valid code and, after checking for code blocks, returns a string of code that is valid."""
+#     # pattern = r"```[\w\s]*\n([\s\S]*?)```" # original regex for code blocks anywhere in the string
+#     print('----codeFile', codeFile)
+#     pattern = r"^\s*```[ws]*\n([sS]*?)```" # codeblocks at start of the string, less eager
+#     code_blocks = re.findall(pattern, codeFile, re.MULTILINE)
+#     return code_blocks[0] if code_blocks else codeFile
 
 def generate_code(prompt: str, sharedDependencyManifest: str, currentFile: str):
   completion = openai.ChatCompletion.create(
           model=openaimodel,
           temperature=0.7,
+        #   functions=[validCodeFile.openai_schema],
+        #   function_call={ "name": "validCodeFile" },
           messages=[
               {
                   "role": "system",
@@ -129,12 +155,12 @@ def generate_code(prompt: str, sharedDependencyManifest: str, currentFile: str):
        - do not stray from the names of the files and the shared dependencies we have decided on
        - MOST IMPORTANT OF ALL - every line of code you generate must be valid code. Do not include code fences in your response, for example
     
-    Bad response:
+    Bad response (because it contains the code fence):
     ```javascript 
     console.log("hello world")
     ```
     
-    Good response:
+    Good response (because it only contains the code):
     console.log("hello world")
     
     Begin generating the code now.
@@ -143,6 +169,12 @@ def generate_code(prompt: str, sharedDependencyManifest: str, currentFile: str):
               },
           ],
       )
-  # result = sharedDeps.from_response(completion)
-  # return result
-  return completion.choices[0].message.content
+#   print('completion', completion)
+#   codeFile = validCodeFile.from_response(completion)
+#   return codeFile
+  codeFile = completion.choices[0].message.content
+#   print('xxxxxcodeFile', codeFile)
+#   pattern = r"^\s*```[ws]*\n([sS]*?)```" # codeblocks at start of the string, less eager
+  pattern = r"```[\w\s]*\n([\s\S]*?)```" # codeblocks at start of the string, less eager
+  code_blocks = re.findall(pattern, codeFile, re.MULTILINE)
+  return code_blocks[0] if code_blocks else codeFile
