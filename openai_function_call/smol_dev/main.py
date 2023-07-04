@@ -9,7 +9,11 @@ def main(app_prompt, generateFolder = "generated", debug=False):
 
   # plan sharedDeps
   if debug: print('--------sharedDeps---------')
-  sharedDeps = plan(app_prompt)
+  with open(f"{generateFolder}/shared_deps.md", 'wb') as f:
+    def streamHandler(chunk):
+      f.write(chunk)
+      print('chunk', chunk)
+    sharedDeps = plan(app_prompt, streamHandler)
   if debug: print(sharedDeps)
   writeFile(f"{generateFolder}/shared_deps.md", sharedDeps)
   if debug: print('--------sharedDeps---------')

@@ -1,5 +1,6 @@
 import openai
-from typing import List
+import time
+from typing import List, Optional, Callable
 from openai_function_call import openai_function
 import re
 
@@ -52,15 +53,12 @@ def specify_filePaths(prompt: str, sharedDependencyManifest: str):
   return result
   
 
-def passthrough(prompt: str):
-  print('passthrough', prompt)
-  return prompt
-
 # def plan(prompt: str, filePaths: List[str]):
-def plan(prompt: str):
+def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None):
   completion = openai.ChatCompletion.create(
           model=openaimodel,
           temperature=0.7,
+          stream=True, # always stream
           messages=[
               {
                   "role": "system",
@@ -79,11 +77,18 @@ def plan(prompt: str):
                   "role": "user",
                   "content": f""" the app prompt is: {prompt} """,
               },
-          ],
+          ]
       )
-  # result = sharedDeps.from_response(completion)
-  # return result
-  return completion.choices[0].message.content
+  
+  collected_messages = []
+  for chunk in completion:
+    # chunk_message = chunk['choices'][0]['delta']  # extract the message
+    chunk_message = chunk['choices'][0]['delta']['content']
+    collected_messages.append(chunk_message)  # save the message
+    if streamHandler:
+        streamHandler(chunk_message.encode('utf-8'))
+  full_reply_content = ''.join([m.get('content', '') for m in collected_messages])
+  return full_reply_content
 
 
 #####
@@ -118,6 +123,9 @@ def plan(prompt: str):
 #     return code_blocks[0] if code_blocks else codeFile
 
 def generate_code(prompt: str, sharedDependencyManifest: str, currentFile: str):
+  first = True
+  chunkCount = 0
+  start_time = time.time()
   completion = openai.ChatCompletion.create(
           model=openaimodel,
           temperature=0.7,
@@ -169,11 +177,22 @@ def generate_code(prompt: str, sharedDependencyManifest: str, currentFile: str):
     """,
               },
           ],
+          stream=True,
       )
-#   print('completion', completion)
-#   codeFile = validCodeFile.from_response(completion)
-#   return codeFile
-  codeFile = completion.choices[0].message.content
+  
+  collected_messages = []
+  for chunk in completion:
+      chunk_message = chunk['choices'][0]['delta']  # extract the message
+      collected_messages.append(chunk_message)  # save the message
+      if chunkCount < 5: 
+        chunk_time = time.time() - start_time  # calculate the time delay of the chunk
+        print(f"Message received {chunk_time:.2f} seconds after request: {chunk_message}")  # 
+        chunkCount += 1
+
+  print(f"Full response received {chunk_time:.2f} seconds after request")
+  codeFile = ''.join([m.get('content', '') for m in collected_messages])
+
+#   codeFile = completion.choices[0].message.content
 #   print('xxxxxcodeFile', codeFile)
 #   pattern = r"^\s*```[ws]*\n([sS]*?)```" # codeblocks at start of the string, less eager
   pattern = r"```[\w\s]*\n([\s\S]*?)```" # codeblocks at start of the string, less eager

@@ -7,7 +7,7 @@ def generate_folder(folder_path):
     else:
         import shutil
         shutil.rmtree(folder_path)
-        # os.makedirs(folder_path)
+        os.makedirs(folder_path)
         # print(f"Folder '{folder_path}' already exists.")
         
 def writeFile(filePath, content):
