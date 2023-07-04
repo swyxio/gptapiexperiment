@@ -107,6 +107,7 @@ def plan(prompt: str):
 #     code_files: List[CodeFile]
 
 # # commented out because of https://github.com/jxnl/openai_function_call/issues/32
+## its because need to escape json https://community.snowflake.com/s/article/Escaping-new-line-character-in-JSON-to-avoid-data-loading-errors
 # @openai_function
 # def validCodeFile(codeFile: str) -> str:
 #     """Receives a string of valid code and, after checking for code blocks, returns a string of code that is valid."""
