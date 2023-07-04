@@ -83,10 +83,14 @@ def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None):
   collected_messages = []
   for chunk in completion:
     # chunk_message = chunk['choices'][0]['delta']  # extract the message
-    chunk_message = chunk['choices'][0]['delta']['content']
+    chunk_message = chunk['choices'][0]['delta']
     collected_messages.append(chunk_message)  # save the message
     if streamHandler:
-        streamHandler(chunk_message.encode('utf-8'))
+        try:
+            streamHandler(chunk_message['content'].encode('utf-8'))
+        except Exception as err:
+            print('streamHandler error:', err)
+            print(chunk_message)
   full_reply_content = ''.join([m.get('content', '') for m in collected_messages])
   return full_reply_content
 
