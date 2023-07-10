@@ -1,1 +1,1 @@
-from .prompts import plan, specify_filePaths, generate_code
+from .prompts import plan, specify_file_paths, generate_code

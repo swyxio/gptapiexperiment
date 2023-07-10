@@ -1,8 +1,14 @@
-import openai
+import re
 import time
 from typing import List, Optional, Callable, Any
+
+import openai
 from openai_function_call import openai_function
-import re
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_random_exponential,
+)  # for exponential backoff
 
 openaimodel = "gpt-3.5-turbo-0613"
 # openaimodel = "gpt-4-0613"
@@ -14,18 +20,19 @@ Do not leave any todos, fully implement every feature requested.
 
 
 @openai_function
-def filePaths(filesToEdit: List[str]) -> List[str]:
-    """Takes a list of filepaths relative to the current directory and returns a list of filepaths that need to be edited."""
-    print("filesToEdit", filesToEdit)
-    return filesToEdit
+def file_paths(files_to_edit: List[str]) -> List[str]:
+    """Takes a list of filepaths relative to the current directory and returns a list of filepaths that need to be
+    edited."""
+    print("filesToEdit", files_to_edit)
+    return files_to_edit
 
 
-def specify_filePaths(prompt: str, plan: str):
+def specify_file_paths(prompt: str, plan: str) -> List[str]:
     completion = openai.ChatCompletion.create(
         model=openaimodel,
         temperature=0.7,
-        functions=[filePaths.openai_schema],
-        function_call={"name": "filePaths"},
+        functions=[file_paths.openai_schema],
+        function_call={"name": "file_paths"},
         messages=[
             {
                 "role": "system",
@@ -47,12 +54,12 @@ def specify_filePaths(prompt: str, plan: str):
             },
         ],
     )
-    result = filePaths.from_response(completion)
+    result = file_paths.from_response(completion)
     return result
 
 
 # def plan(prompt: str, filePaths: List[str]):
-def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None):
+def plan(prompt: str, stream_handler: Optional[Callable[[bytes], None]] = None):
     completion = openai.ChatCompletion.create(
         model=openaimodel,
         temperature=0.7,
@@ -83,9 +90,9 @@ def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None):
         # chunk_message = chunk['choices'][0]['delta']  # extract the message
         chunk_message = chunk["choices"][0]["delta"]
         collected_messages.append(chunk_message)  # save the message
-        if streamHandler:
+        if stream_handler:
             try:
-                streamHandler(chunk_message["content"].encode("utf-8"))
+                stream_handler(chunk_message["content"].encode("utf-8"))
             except Exception as err:
                 print("streamHandler error:", err)
                 print(chunk_message)
@@ -113,28 +120,19 @@ def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None):
 #     manifest: SmolDeveloperManifest
 #     code_files: List[CodeFile]
 
-# # commented out because of https://github.com/jxnl/openai_function_call/issues/32
-## its because need to escape json https://community.snowflake.com/s/article/Escaping-new-line-character-in-JSON-to-avoid-data-loading-errors
-# @openai_function
-# def validCodeFile(codeFile: str) -> str:
-#     """Receives a string of valid code and, after checking for code blocks, returns a string of code that is valid."""
-#     # pattern = r"```[\w\s]*\n([\s\S]*?)```" # original regex for code blocks anywhere in the string
-#     print('----codeFile', codeFile)
-#     pattern = r"^\s*```[ws]*\n([sS]*?)```" # codeblocks at start of the string, less eager
-#     code_blocks = re.findall(pattern, codeFile, re.MULTILINE)
-#     return code_blocks[0] if code_blocks else codeFile
-
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_random_exponential,
-)  # for exponential backoff
-
+# # commented out because of https://github.com/jxnl/openai_function_call/issues/32 # its because need to escape json
+# https://community.snowflake.com/s/article/Escaping-new-line-character-in-JSON-to-avoid-data-loading-errors
+# @openai_function def validCodeFile(codeFile: str) -> str: """Receives a string of valid code and, after checking
+# for code blocks, returns a string of code that is valid.""" # pattern = r"```[\w\s]*\n([\s\S]*?)```" # original
+# regex for code blocks anywhere in the string print('----codeFile', codeFile) pattern = r"^\s*```[ws]*\n([sS]*?)```"
+# codeblocks at start of the string, less eager code_blocks = re.findall(pattern, codeFile, re.MULTILINE) return
+# code_blocks[0] if code_blocks else codeFile
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
-async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler: Optional[Callable[Any, Any]] = None) -> str:
+async def generate_code(prompt: str, plan: str, current_file: str,
+                        stream_handler: Optional[Callable[Any, Any]] = None) -> str:
     first = True
-    chunkCount = 0
+    chunk_count = 0
     start_time = time.time()
     completion = openai.ChatCompletion.acreate(
         model=openaimodel,
@@ -150,7 +148,7 @@ async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler:
   Please name and briefly describe the structure of the app we will generate, including, for each file we are generating, what variables they export, data schemas, id names of every DOM elements that javascript functions will use, message names, and function names.
 
   We have broken up the program into per-file generation. 
-  Now your job is to generate only the code for the file: {currentFile} 
+  Now your job is to generate only the code for the file: {current_file} 
   
   only write valid code for the given filepath and file type, and return only the code.
   do not add any other explanation, only return valid code for that file type.
@@ -170,7 +168,7 @@ async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler:
     Make sure to have consistent filenames if you reference other files we are also generating.
     
     Remember that you must obey 3 things: 
-       - you are generating code for the file {currentFile}
+       - you are generating code for the file {current_file}
        - do not stray from the names of the files and the plan we have decided on
        - MOST IMPORTANT OF ALL - every line of code you generate must be valid code. Do not include code fences in your response, for example
     
@@ -191,27 +189,27 @@ async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler:
     )
 
     collected_messages = []
-    async for chunk in await completion:        
+    async for chunk in await completion:
         chunk_message = chunk["choices"][0]["delta"]  # extract the message
-        if streamHandler:
+        if stream_handler:
             try:
-                streamHandler(chunk_message['content'].encode('utf-8'))
+                stream_handler(chunk_message['content'].encode('utf-8'))
             except Exception as err:
                 # print('streamHandler error:', err)
                 # print(chunk_message)
                 pass
         collected_messages.append(chunk_message)  # save the message
-        if chunkCount < 5:
+        if chunk_count < 5:
             chunk_time = time.time() - start_time  # calculate the time delay of the chunk
             # print(f"Message received {chunk_time:.2f} seconds after request: {chunk_message}")  #
-            chunkCount += 1
+            chunk_count += 1
 
     # print(f"Full response received {chunk_time:.2f} seconds after request")
-    codeFile = "".join([m.get("content", "") for m in collected_messages])
+    code_file = "".join([m.get("content", "") for m in collected_messages])
 
-    #   codeFile = completion.choices[0].message.content
-    #   print('xxxxxcodeFile', codeFile)
+    #   code_file = completion.choices[0].message.content
+    #   print('xxxxxcodeFile', code_file)
     #   pattern = r"^\s*```[ws]*\n([sS]*?)```" # codeblocks at start of the string, less eager
     pattern = r"```[\w\s]*\n([\s\S]*?)```"  # codeblocks at start of the string, less eager
-    code_blocks = re.findall(pattern, codeFile, re.MULTILINE)
-    return code_blocks[0] if code_blocks else codeFile
+    code_blocks = re.findall(pattern, code_file, re.MULTILINE)
+    return code_blocks[0] if code_blocks else code_file

@@ -1,50 +1,51 @@
-from prompts import plan, specify_filePaths, generate_code
-from utils import generate_folder, writeFile
-import os
+import asyncio
 import sys
 
+from prompts import plan, specify_file_paths, generate_code
+from utils import generate_folder, write_file
 
-def main(app_prompt, generateFolder="generated", debug=False):
+
+def main(app_prompt, generate_folder_path="generated", debug=False):
     # create generateFolder folder if doesnt exist
-    generate_folder(generateFolder)
+    generate_folder(generate_folder_path)
 
-    # plan sharedDeps
+    # plan shared_deps
     if debug:
-        print("--------sharedDeps---------")
-    with open(f"{generateFolder}/shared_deps.md", "wb") as f:
+        print("--------shared_deps---------")
+    with open(f"{generate_folder_path}/shared_deps.md", "wb") as f:
 
         def streamHandler(chunk):
             f.write(chunk)
             print("chunk", chunk)
 
-        sharedDeps = plan(app_prompt, streamHandler)
+        shared_deps = plan(app_prompt, streamHandler)
     if debug:
-        print(sharedDeps)
-    writeFile(f"{generateFolder}/shared_deps.md", sharedDeps)
+        print(shared_deps)
+    write_file(f"{generate_folder_path}/shared_deps.md", shared_deps)
     if debug:
-        print("--------sharedDeps---------")
+        print("--------shared_deps---------")
 
-    # specify filePaths
+    # specify file_paths
     if debug:
         print("--------specify_filePaths---------")
-    filePaths = specify_filePaths(app_prompt, sharedDeps)
+    file_paths = specify_file_paths(app_prompt, shared_deps)
     if debug:
-        print(filePaths)
+        print(file_paths)
     if debug:
-        print("--------filePaths---------")
+        print("--------file_paths---------")
 
-    # loop through filePaths array and generate code for each file
-    for filePath in filePaths:
-        filePath = f"{generateFolder}/{filePath}"  # just append prefix
+    # loop through file_paths array and generate code for each file
+    for file_path in file_paths:
+        file_path = f"{generate_folder_path}/{file_path}"  # just append prefix
         if debug:
-            print(f"--------generate_code: {filePath} ---------")
-        code = generate_code(app_prompt, sharedDeps, filePath)
+            print(f"--------generate_code: {file_path} ---------")
+        code = asyncio.run(generate_code(app_prompt, shared_deps, file_path))
         if debug:
             print(code)
         if debug:
-            print(f"--------generate_code: {filePath} ---------")
+            print(f"--------generate_code: {file_path} ---------")
         # create file with code content
-        writeFile(filePath, code)
+        write_file(file_path, code)
 
 
 # for local testing
