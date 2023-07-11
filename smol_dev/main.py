@@ -1,8 +1,8 @@
 import asyncio
 import sys
 
-from prompts import plan, specify_file_paths, generate_code
-from utils import generate_folder, write_file
+from smol_dev.prompts import plan, specify_file_paths, generate_code
+from smol_dev.utils import generate_folder, write_file
 
 
 def main(app_prompt, generate_folder_path="generated", debug=False):
