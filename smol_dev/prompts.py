@@ -1,3 +1,4 @@
+import asyncio
 import re
 import time
 from typing import List, Optional, Callable, Any
@@ -213,3 +214,9 @@ async def generate_code(prompt: str, plan: str, current_file: str,
     pattern = r"```[\w\s]*\n([\s\S]*?)```"  # codeblocks at start of the string, less eager
     code_blocks = re.findall(pattern, code_file, re.MULTILINE)
     return code_blocks[0] if code_blocks else code_file
+
+
+def generate_code_sync(prompt: str, plan: str, current_file: str,
+                       stream_handler: Optional[Callable[Any, Any]] = None) -> str:
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(generate_code(prompt, plan, current_file, stream_handler))

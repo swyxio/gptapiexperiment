@@ -1,7 +1,7 @@
 import asyncio
 import sys
 
-from smol_dev.prompts import plan, specify_file_paths, generate_code
+from smol_dev.prompts import plan, specify_file_paths, generate_code, generate_code_sync
 from smol_dev.utils import generate_folder, write_file
 
 
@@ -39,7 +39,7 @@ def main(app_prompt, generate_folder_path="generated", debug=False):
         file_path = f"{generate_folder_path}/{file_path}"  # just append prefix
         if debug:
             print(f"--------generate_code: {file_path} ---------")
-        code = asyncio.run(generate_code(app_prompt, shared_deps, file_path))
+        code = generate_code_sync(app_prompt, shared_deps, file_path)
         if debug:
             print(code)
         if debug:
