@@ -60,8 +60,7 @@ def specify_file_paths(prompt: str, plan: str, model: str = "gpt-3.5-turbo-0613"
     return result
 
 
-# def plan(prompt: str, filePaths: List[str]):
-def plan(prompt: str, stream_handler: Optional[Callable[[bytes], None]] = None, model: str = "gpt-3.5-turbo-0613"):
+def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None, model: str="gpt-3.5-turbo-0613"):
     completion = openai.ChatCompletion.create(
         model=model,
         temperature=0.7,
