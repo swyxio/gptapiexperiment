@@ -22,7 +22,10 @@ Do not leave any todos, fully implement every feature requested.
 
 @openai_function
 def file_paths(files_to_edit: List[str]) -> List[str]:
-    print("filesToEdit", files_to_edit)
+    """
+    Construct a list of strings.
+    """
+    # print("filesToEdit", files_to_edit)
     return files_to_edit
 
 
@@ -56,6 +59,9 @@ def specify_filePaths(prompt: str, plan: str, model: str = "gpt-3.5-turbo-0613")
     result = file_paths.from_response(completion)
     return result
 
+if __name__ == "__main__":
+    print(specify_filePaths("Please return just one file called yeehaw.py", plan="n/a"))
+exit()
 
 # def plan(prompt: str, filePaths: List[str]):
 def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None, model: str="gpt-3.5-turbo-0613"):
@@ -83,9 +89,9 @@ def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None, m
     for chunk in completion:
         chunk_message = chunk["choices"][0]["delta"]  # extract the message
         collected_messages.append(chunk_message)  # save the message
-        if stream_handler:
+        if streamHandler:
             try:
-                stream_handler(chunk_message["content"].encode("utf-8"))
+                streamHandler(chunk_message["content"].encode("utf-8"))
             except Exception as err:
                 print("streamHandler error:", err)
                 print(chunk_message)
@@ -153,9 +159,9 @@ async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler:
     collected_messages = []
     async for chunk in await completion:
         chunk_message = chunk["choices"][0]["delta"]  # extract the message
-        if stream_handler:
+        if streamHandler:
             try:
-                stream_handler(chunk_message['content'].encode('utf-8'))
+                streamHandler(chunk_message['content'].encode('utf-8'))
             except Exception as err:
                 pass
         collected_messages.append(chunk_message)  # save the message
@@ -171,6 +177,6 @@ async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler:
 
 
 def generate_code_sync(prompt: str, plan: str, current_file: str,
-                       stream_handler: Optional[Callable[Any, Any]] = None) -> str:
+                       streamHandler: Optional[Callable[Any, Any]] = None) -> str:
     loop = asyncio.get_event_loop()
-    return loop.run_until_complete(generate_code(prompt, plan, current_file, stream_handler))
+    return loop.run_until_complete(generate_code(prompt, plan, current_file, streamHandler))
