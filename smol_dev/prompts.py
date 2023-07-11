@@ -112,7 +112,7 @@ async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler:
   Please name and briefly describe the structure of the app we will generate, including, for each file we are generating, what variables they export, data schemas, id names of every DOM elements that javascript functions will use, message names, and function names.
 
   We have broken up the program into per-file generation. 
-  Now your job is to generate only the code for the file: {current_file} 
+  Now your job is to generate only the code for the file: {currentFile} 
   
   only write valid code for the given filepath and file type, and return only the code.
   do not add any other explanation, only return valid code for that file type.
@@ -132,7 +132,7 @@ async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler:
     Make sure to have consistent filenames if you reference other files we are also generating.
     
     Remember that you must obey 3 things: 
-       - you are generating code for the file {current_file}
+       - you are generating code for the file {currentFile}
        - do not stray from the names of the files and the plan we have decided on
        - MOST IMPORTANT OF ALL - every line of code you generate must be valid code. Do not include code fences in your response, for example
     
