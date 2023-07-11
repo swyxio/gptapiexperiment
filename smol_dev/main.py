@@ -13,11 +13,11 @@ def main(app_prompt, generate_folder_path="generated", debug=False):
         print("--------shared_deps---------")
     with open(f"{generate_folder_path}/shared_deps.md", "wb") as f:
 
-        def streamHandler(chunk):
+        def stream_handler(chunk):
             f.write(chunk)
             print("chunk", chunk)
 
-        shared_deps = plan(app_prompt, streamHandler)
+        shared_deps = plan(app_prompt, stream_handler)
     if debug:
         print(shared_deps)
     write_file(f"{generate_folder_path}/shared_deps.md", shared_deps)
