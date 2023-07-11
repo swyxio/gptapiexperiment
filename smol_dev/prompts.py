@@ -11,11 +11,12 @@ from tenacity import (
     wait_random_exponential,
 )
 
-openaimodel = "gpt-3.5-turbo-0613"
+# model = "gpt-3.5-turbo-0613"
+# # openaimodel = "gpt-4-0613"
 
-smol_dev_system_prompt = """                                                                                                                                                                                                                          
-You are a top tier AI developer who is trying to write a program that will generate code for the user based on their intent.                                                                                                                          
-Do not leave any todos, fully implement every feature requested.                                                                                                                                                                                      
+SMOL_DEV_SYSTEM_PROMPT = """
+You are a top tier AI developer who is trying to write a program that will generate code for the user based on their intent.
+Do not leave any todos, fully implement every feature requested.
 """
 
 
@@ -25,21 +26,21 @@ def file_paths(files_to_edit: List[str]) -> List[str]:
     return files_to_edit
 
 
-def specify_file_paths(prompt: str, plan: str) -> List[str]:
+def specify_filePaths(prompt: str, plan: str, model: str = "gpt-3.5-turbo-0613"):
     completion = openai.ChatCompletion.create(
-        model=openaimodel,
+        model=model,
         temperature=0.7,
         functions=[file_paths.openai_schema],
         function_call={"name": "file_paths"},
         messages=[
             {
                 "role": "system",
-                "content": f"""{smol_dev_system_prompt}                                                                                                                                                                                               
-
-      When given their intent, create a complete, exhaustive list of filepaths that the user would write to make the program.                                                                                                                         
-
-      only list the filepaths you would write, and return them as a python list of strings.                                                                                                                                                           
-      do not add any other explanation, only return a python list of strings.                                                                                                                                                                         
+                "content": f"""{SMOL_DEV_SYSTEM_PROMPT}
+          
+      When given their intent, create a complete, exhaustive list of filepaths that the user would write to make the program.
+      
+      only list the filepaths you would write, and return them as a python list of strings. 
+      do not add any other explanation, only return a python list of strings.
                   """,
             },
             {
@@ -56,19 +57,19 @@ def specify_file_paths(prompt: str, plan: str) -> List[str]:
     return result
 
 
-def plan(prompt: str, stream_handler: Optional[Callable[[bytes], None]] = None):
+# def plan(prompt: str, filePaths: List[str]):
+def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None, model: str="gpt-3.5-turbo-0613"):
     completion = openai.ChatCompletion.create(
-        model=openaimodel,
+        model=model,
         temperature=0.7,
         stream=True,
         messages=[
             {
                 "role": "system",
-                "content": f"""{smol_dev_system_prompt}                                                                                                                                                                                               
-
-  In response to the user's prompt,                                                                                                                                                                                                                   
-  Please name and briefly describe the structure of the app we will generate, including, for each file we are generating, what variables they export, data schemas, id names of every DOM elements that javascript functions will use, message names, 
-and function names.                                                                                                                                                                                                                                   
+                "content": f"""{SMOL_DEV_SYSTEM_PROMPT}
+      
+  In response to the user's prompt, 
+  Please name and briefly describe the structure of the app we will generate, including, for each file we are generating, what variables they export, data schemas, id names of every DOM elements that javascript functions will use, message names, and function names.
                   """,
             },
             {
@@ -93,18 +94,17 @@ and function names.
 
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
-async def generate_code(prompt: str, plan: str, current_file: str,
-                        stream_handler: Optional[Callable[Any, Any]] = None) -> str:
+async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler: Optional[Callable[Any, Any]] = None, model: str = "gpt-3.5-turbo-0613") -> str:
     first = True
     chunk_count = 0
     start_time = time.time()
     completion = openai.ChatCompletion.acreate(
-        model=openaimodel,
+        model=model,
         temperature=0.7,
         messages=[
             {
                 "role": "system",
-                "content": f"""{smol_dev_system_prompt}
+                "content": f"""{SMOL_DEV_SYSTEM_PROMPT}
       
   In response to the user's prompt, 
   Please name and briefly describe the structure of the app we will generate, including, for each file we are generating, what variables they export, data schemas, id names of every DOM elements that javascript functions will use, message names, and function names.
