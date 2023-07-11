@@ -1,16 +1,13 @@
 import os
+import shutil
 
 
 def generate_folder(folder_path: str):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
-        # print(f"Folder '{folder_path}' created successfully.")
     else:
-        import shutil
-
         shutil.rmtree(folder_path)
         os.makedirs(folder_path)
-        # print(f"Folder '{folder_path}' already exists.")
 
 
 def write_file(file_path: str, content: str):
