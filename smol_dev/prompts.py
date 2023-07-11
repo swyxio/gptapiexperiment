@@ -60,7 +60,7 @@ def specify_file_paths(prompt: str, plan: str, model: str = "gpt-3.5-turbo-0613"
     return result
 
 
-def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None, model: str="gpt-3.5-turbo-0613"):
+def plan(prompt: str, stream_handler: Optional[Callable[[bytes], None]] = None, model: str="gpt-3.5-turbo-0613"):
     completion = openai.ChatCompletion.create(
         model=model,
         temperature=0.7,
@@ -89,7 +89,7 @@ def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None, m
             try:
                 stream_handler(chunk_message["content"].encode("utf-8"))
             except Exception as err:
-                print("streamHandler error:", err)
+                print("stream_handler error:", err)
                 print(chunk_message)
     full_reply_content = "".join([m.get("content", "") for m in collected_messages])
     return full_reply_content
@@ -174,6 +174,6 @@ async def generate_code(prompt: str, plan: str, current_file: str, stream_handle
 
 
 def generate_code_sync(prompt: str, plan: str, current_file: str,
-                       streamHandler: Optional[Callable[Any, Any]] = None) -> str:
+                       stream_handler: Optional[Callable[Any, Any]] = None) -> str:
     loop = asyncio.get_event_loop()
-    return loop.run_until_complete(generate_code(prompt, plan, current_file, streamHandler))
+    return loop.run_until_complete(generate_code(prompt, plan, current_file, stream_handler))
