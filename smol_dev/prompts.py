@@ -29,7 +29,7 @@ def file_paths(files_to_edit: List[str]) -> List[str]:
     return files_to_edit
 
 
-def specify_filePaths(prompt: str, plan: str, model: str = "gpt-3.5-turbo-0613"):
+def specify_file_paths(prompt: str, plan: str, model: str = "gpt-3.5-turbo-0613"):
     completion = openai.ChatCompletion.create(
         model=model,
         temperature=0.7,
@@ -59,8 +59,9 @@ def specify_filePaths(prompt: str, plan: str, model: str = "gpt-3.5-turbo-0613")
     result = file_paths.from_response(completion)
     return result
 
+
 # def plan(prompt: str, filePaths: List[str]):
-def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None, model: str="gpt-3.5-turbo-0613"):
+def plan(prompt: str, stream_handler: Optional[Callable[[bytes], None]] = None, model: str = "gpt-3.5-turbo-0613"):
     completion = openai.ChatCompletion.create(
         model=model,
         temperature=0.7,
@@ -85,9 +86,9 @@ def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None, m
     for chunk in completion:
         chunk_message = chunk["choices"][0]["delta"]  # extract the message
         collected_messages.append(chunk_message)  # save the message
-        if streamHandler:
+        if stream_handler:
             try:
-                streamHandler(chunk_message["content"].encode("utf-8"))
+                stream_handler(chunk_message["content"].encode("utf-8"))
             except Exception as err:
                 print("streamHandler error:", err)
                 print(chunk_message)
@@ -96,7 +97,8 @@ def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None, m
 
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
-async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler: Optional[Callable[Any, Any]] = None, model: str = "gpt-3.5-turbo-0613") -> str:
+async def generate_code(prompt: str, plan: str, current_file: str, stream_handler: Optional[Callable[Any, Any]] = None,
+                        model: str = "gpt-3.5-turbo-0613") -> str:
     first = True
     chunk_count = 0
     start_time = time.time()
@@ -112,7 +114,7 @@ async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler:
   Please name and briefly describe the structure of the app we will generate, including, for each file we are generating, what variables they export, data schemas, id names of every DOM elements that javascript functions will use, message names, and function names.
 
   We have broken up the program into per-file generation. 
-  Now your job is to generate only the code for the file: {currentFile} 
+  Now your job is to generate only the code for the file: {current_file} 
   
   only write valid code for the given filepath and file type, and return only the code.
   do not add any other explanation, only return valid code for that file type.
@@ -132,7 +134,7 @@ async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler:
     Make sure to have consistent filenames if you reference other files we are also generating.
     
     Remember that you must obey 3 things: 
-       - you are generating code for the file {currentFile}
+       - you are generating code for the file {current_file}
        - do not stray from the names of the files and the plan we have decided on
        - MOST IMPORTANT OF ALL - every line of code you generate must be valid code. Do not include code fences in your response, for example
     
@@ -155,9 +157,9 @@ async def generate_code(prompt: str, plan: str, currentFile: str, streamHandler:
     collected_messages = []
     async for chunk in await completion:
         chunk_message = chunk["choices"][0]["delta"]  # extract the message
-        if streamHandler:
+        if stream_handler:
             try:
-                streamHandler(chunk_message['content'].encode('utf-8'))
+                stream_handler(chunk_message['content'].encode('utf-8'))
             except Exception as err:
                 pass
         collected_messages.append(chunk_message)  # save the message
