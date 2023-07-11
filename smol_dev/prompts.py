@@ -59,10 +59,6 @@ def specify_filePaths(prompt: str, plan: str, model: str = "gpt-3.5-turbo-0613")
     result = file_paths.from_response(completion)
     return result
 
-if __name__ == "__main__":
-    print(specify_filePaths("Please return just one file called yeehaw.py", plan="n/a"))
-exit()
-
 # def plan(prompt: str, filePaths: List[str]):
 def plan(prompt: str, streamHandler: Optional[Callable[[bytes], None]] = None, model: str="gpt-3.5-turbo-0613"):
     completion = openai.ChatCompletion.create(
