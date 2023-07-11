@@ -1,22 +1,23 @@
-## smol-dev
-
-this is a stub for a smol developer package. dont use for now.
-
-
-## running as script
-
-```bash
-# make sure all requirements installed
-python smol_dev/main.py
-```
-
-## publishing
-
-```bash
-pip install build
-
-make
-
-python3 -m pip install --upgrade twine
-python3 -m twine upload dist/*
-```
+                                                                                                                                                                                                                                          
+ # Smol Developer: A Smol Dev for Every Dev!                                                                                                                                                                                                           
+                                                                                                                                                                                                                                                       
+ Hello there, fellow developers! Welcome to the world of `Smol Developer`, where we believe in the power of AI to transform the way we code. We're not just talking about a few lines of code here and there - we're talking about an AI engineer that 
+ ready to roll up its virtual sleeves and dive into your codebase!                                                                                                                                                                                     
+                                                                                                                                                                                                                                                       
+ Imagine having a smol dev in your pocket, ready to assist you with your coding needs at any time. That's right, we're talking about a pint-sized powerhouse of a programmer that doesn't need coffee breaks or sleep. This is the vision of `Smol     
+ Developer`, where we're making the dream of having your very own AI engineer a reality!                                                                                                                                                               
+                                                                                                                                                                                                                                                       
+ Now, let's take a tour of the project:                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                       
+ - `smol_dev/main.py`: This is where the magic happens! It's the main entry point of our application.                                                                                                                                                  
+                                                                                                                                                                                                                                                       
+ - `smol_dev/prompts.py`: This is the brains of the operation. It contains several functions that interact with the OpenAI API to generate code based on user prompts. Here's a quick rundown of the key functions:                                    
+   - `specify_file_paths()`: This function takes a user's intent and generates a list of file paths that the user would need to write to make the program.                                                                                             
+   - `plan()`: This function generates a plan for the app based on the user's prompt. It describes the structure of the app, including the variables they export, data schemas, id names of DOM elements that JavaScript functions will use, message   
+ names, and function names.                                                                                                                                                                                                                            
+   - `generate_code()`: This is the heart of `Smol Developer`. It generates the actual code for a given file based on the user's prompt and the plan.                                                                                                  
+   - `generate_code_sync()`: This function is a synchronous wrapper around `generate_code()`, allowing it to be used in a blocking way.                                                                                                                
+                                                                                                                                                                                                                                                       
+ - `smol_dev/utils.py`: This file contains utility functions for creating folders and writing files.                                                                                                                                                   
+                                                                                                                                                                                                                                                       
+ So there you have it, a smol tour of `Smol Developer`. We hope you're as excited about this project as we are. Remember, with `Smol Developer`, you're not just coding - you're creating the future of development!    
