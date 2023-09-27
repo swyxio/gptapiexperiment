@@ -1,6 +1,6 @@
 import OpenAI from "openai";
+import { SmolContext } from "./smolaiContext";
 // write to disk
-import fs from "fs";
 import { CreateChatCompletionRequestMessage } from "openai/resources/chat";
 
 // error if process.env["OPENAI_API_KEY"] empty
@@ -35,9 +35,10 @@ const defaultModel = async (opt: {
     stream: true,
   });
 };
+
 export class AI {
-  private memory: Memory = { store: [] };
-  private context: VectorDB = { store: [] };
+  memory: Memory = { store: [] };
+  context: SmolContext = new SmolContext();
   stream = new ReadableStream();
   model = defaultModel;
   systemPrompt = "You are a helpful assistant.";
@@ -102,6 +103,7 @@ export class AI {
     read();
   }
 }
+
 
 type Memory = {
   store: XMessage[];
