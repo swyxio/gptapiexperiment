@@ -14,7 +14,7 @@
     "@smol-ai/logger": "^0.0.21",
     "@xenova/transformers": "^2.6.1",
     "chromadb": "^1.5.11",
-    "openai": "^4.3.1",
+    "openai": "^4.20.0",
     "smolai": "^0.0.10",
     "ts-node": "^10.9.1",
     "vectordb": "^0.2.6",

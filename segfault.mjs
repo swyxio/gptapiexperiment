@@ -60,7 +60,7 @@ await myDB.add([
   { id: 2323, chunk: "banana" },
   { id: 2323, chunk: "armadillo" },
 ]);
-const val = await myDB.query({ query: "my favorite red fruit" });
+const val = await myDB.query({ query: "my favorite two-legged animal" });
 console.log(
   val.map(
     // exclude embedding
