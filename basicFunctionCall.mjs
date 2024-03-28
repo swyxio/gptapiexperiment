@@ -66,7 +66,128 @@ const response2 = await openai.chat.completions.create({
 });
 
 console.log("response2", response2.choices[0].message.tool_calls[0].function); 
+
+
+
+
+// JSON MODE
+
+const response2 = await openai.chat.completions.create({
+  model: "gpt-4-1106-preview",
+  messages: [
+    {
+      role: "system",
+      content: "you are a helpful assistant",
+    },
+    {
+      role: "user",
+      content: `Choose a famous pop artist, and give me 3 songs by them.
+
+  Return json in this schema:
+${JSON.stringify(zodToJsonSchema(z.object({
+  artist: z.string({ description: "The name of the artist" }),
+  tags: z.array(tagSchema).min(3).max(6),
+})), null, 2)}
+      
+      `,
+    },
+  ],
+  response_format: { type: "json_object" },
+  // tools,
+  // tool_choice: "auto", // auto is default, but we'll be explicit
+});
+
 // response2 {
-//   name: 'get_artist',
-//   arguments: `{"artist":"Adele","tags":[{"title":"Hello","description":"A soulful ballad from her third studio album, '25', which showcases Adele's powerful vocals and emotive lyrics about nostalgia and regret.","date":"2015"},{"title":"Someone Like You","description":"A poignant, piano-driven song about coming to terms with a breakup, from her critically acclaimed second album, '21'.","date":"2011"},{"title":"Rolling in the Deep","description":"An uptempo bluesy song that combines gospel and disco elements, which became a defining hit from her '21' album.","date":"2010"}]}`
+//   role: 'assistant',
+//   content: '{\n' +
+//     '  "type": "object",\n' +
+//     '  "properties": {\n' +
+//     '    "artist": {\n' +
+//     '      "type": "string",\n' +
+//     '      "description": "Adele"\n' +
+//     '    },\n' +
+//     '    "tags": {\n' +
+//     '      "type": "array",\n' +
+//     '      "items": [\n' +
+//     '        {\n' +
+//     '          "type": "object",\n' +
+//     '          "properties": {\n' +
+//     '            "title": {\n' +
+//     '              "type": "string",\n' +
+//     '              "description": "Hello"\n' +
+//     '            },\n' +
+//     '            "description": {\n' +
+//     '              "type": "string",\n' +
+//     `              "description": "A soulful ballad from Adele's third studio album, touching on themes of nostalgia and regret."\n` +
+//     '            },\n' +
+//     '            "date": {\n' +
+//     '              "type": "string",\n' +
+//     '              "description": "2015"\n' +
+//     '            }\n' +
+//     '          },\n' +
+//     '          "required": [\n' +
+//     '            "title",\n' +
+//     '            "description",\n' +
+//     '            "date"\n' +
+//     '          ],\n' +
+//     '          "additionalProperties": false\n' +
+//     '        },\n' +
+//     '        {\n' +
+//     '          "type": "object",\n' +
+//     '          "properties": {\n' +
+//     '            "title": {\n' +
+//     '              "type": "string",\n' +
+//     '              "description": "Someone Like You"\n' +
+//     '            },\n' +
+//     '            "description": {\n' +
+//     '              "type": "string",\n' +
+//     `              "description": "A poignant expression of a once-loved relationship that ended, characterized by Adele's signature vocal power."\n` +
+//     '            },\n' +
+//     '            "date": {\n' +
+//     '              "type": "string",\n' +
+//     '              "description": "2011"\n' +
+//     '            }\n' +
+//     '          },\n' +
+//     '          "required": [\n' +
+//     '            "title",\n' +
+//     '            "description",\n' +
+//     '            "date"\n' +
+//     '          ],\n' +
+//     '          "additionalProperties": false\n' +
+//     '        },\n' +
+//     '        {\n' +
+//     '          "type": "object",\n' +
+//     '          "properties": {\n' +
+//     '            "title": {\n' +
+//     '              "type": "string",\n' +
+//     '              "description": "Rolling in the Deep"\n' +
+//     '            },\n' +
+//     '            "description": {\n' +
+//     '              "type": "string",\n' +
+//     `              "description": "An upbeat, soul-pop anthem that showcases Adele's abilities to convey deep emotion whilst empowering listeners."\n` +
+//     '            },\n' +
+//     '            "date": {\n' +
+//     '              "type": "string",\n' +
+//     '              "description": "2010"\n' +
+//     '            }\n' +
+//     '          },\n' +
+//     '          "required": [\n' +
+//     '            "title",\n' +
+//     '            "description",\n' +
+//     '            "date"\n' +
+//     '          ],\n' +
+//     '          "additionalProperties": false\n' +
+//     '        }\n' +
+//     '      ],\n' +
+//     '      "minItems": 3,\n' +
+//     '      "maxItems": 3\n' +
+//     '    }\n' +
+//     '  },\n' +
+//     '  "required": [\n' +
+//     '    "artist",\n' +
+//     '    "tags"\n' +
+//     '  ],\n' +
+//     '  "additionalProperties": false,\n' +
+//     '  "$schema": "http://json-schema.org/draft-07/schema#"\n' +
+//     '}'
 // }
