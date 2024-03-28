@@ -66,13 +66,14 @@ const response2 = await openai.chat.completions.create({
 });
 
 console.log("response2", response2.choices[0].message.tool_calls[0].function); 
+console.log("responseJSON", responseJSON.choices[0].message.tool_calls[0].function); 
 
 
 
 
 // JSON MODE
 
-const response2 = await openai.chat.completions.create({
+const responseJSON = await openai.chat.completions.create({
   model: "gpt-4-1106-preview",
   messages: [
     {
@@ -96,6 +97,7 @@ ${JSON.stringify(zodToJsonSchema(z.object({
   // tools,
   // tool_choice: "auto", // auto is default, but we'll be explicit
 });
+console.log("responseJSON", responseJSON.choices[0].message.tool_calls[0].function); 
 
 // response2 {
 //   role: 'assistant',
