@@ -12,13 +12,13 @@
   "license": "ISC",
   "dependencies": {
     "@smol-ai/logger": "^0.0.21",
-    "@xenova/transformers": "^2.6.1",
-    "chromadb": "^1.5.11",
-    "openai": "^4.3.1",
+    "@xenova/transformers": "^2.16.1",
+    "chromadb": "^1.8.1",
+    "openai": "^4.29.2",
     "smolai": "^0.0.10",
-    "ts-node": "^10.9.1",
-    "vectordb": "^0.2.6",
-    "zod": "^3.21.4",
-    "zod-to-json-schema": "^3.21.1"
+    "ts-node": "^10.9.2",
+    "vectordb": "^0.4.14",
+    "zod": "^3.22.4",
+    "zod-to-json-schema": "^3.22.5"
   }
 }
